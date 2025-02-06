@@ -1,7 +1,7 @@
-import type { Knex } from 'knex';
+import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-  // Create Categories Table
+  // Kategoriler Tablosu
   await knex.schema.createTable('categories', (table) => {
     table.increments('id').primary();
     table.string('name').notNullable();
@@ -9,10 +9,10 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('deleted_at').nullable();
   });
 
-  // Create Posts Table
+  // Postlar Tablosu
   await knex.schema.createTable('posts', (table) => {
     table.increments('id').primary();
-    table.integer('category_id').unsigned().references('id').inTable('categories');
+    table.integer('category_id').references('id').inTable('categories');
     table.string('title').notNullable();
     table.text('content').notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
@@ -20,11 +20,11 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('deleted_at').nullable();
   });
 
-  // Create Comments Table
+  // Yorumlar Tablosu
   await knex.schema.createTable('comments', (table) => {
     table.increments('id').primary();
-    table.integer('post_id').unsigned().references('id').inTable('posts');
-    table.text('content').notNullable();
+    table.integer('post_id').references('id').inTable('posts');
+    table.string('content').notNullable();
     table.string('commenter_name').notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
   });

@@ -7,7 +7,7 @@ router.post('/', PostController.createPost);
 router.get('/', PostController.getAllPosts);
 router.get('/:id', PostController.getPostById);
 router.get('/category/:categoryId', PostController.getPostsByCategory);
-router.put('/:id', PostController.updatePost);
+router.patch('/:id', PostController.updatePost);
 router.delete('/:id', PostController.deletePost);
 
 export default router; 

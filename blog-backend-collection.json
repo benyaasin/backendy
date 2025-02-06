@@ -1,0 +1,126 @@
+{
+	"info": {
+		"_postman_id": "blog-backend-collection",
+		"name": "Blog Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Teknoloji\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/categories",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["categories"]
+						}
+					}
+				},
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:3000/categories",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["categories"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Create Post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"category_id\": 1,\n    \"title\": \"İlk Blog Yazım\",\n    \"content\": \"Merhaba Dünya!\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/posts",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["posts"]
+						}
+					}
+				},
+				{
+					"name": "List Posts",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:3000/posts",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["posts"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Create Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"post_id\": 1,\n    \"content\": \"Harika bir yazı!\",\n    \"commenter_name\": \"Blog Okuru\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/comments",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["comments"]
+						}
+					}
+				},
+				{
+					"name": "List Comments",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:3000/comments",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["comments"]
+						}
+					}
+				}
+			]
+		}
+	]
+} 

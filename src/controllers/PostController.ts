@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PostModel, Post } from '../models/Post';
+import { PostModel, Post, PostQueryOptions } from '../models/Post';
 import { CommentModel } from '../models/Comment';
 
 export class PostController {
@@ -21,7 +21,13 @@ export class PostController {
 
   static async getAllPosts(req: Request, res: Response): Promise<void> {
     try {
-      const posts = await PostModel.findAll();
+      const { showDeleted, status, category } = req.query;
+      const options: PostQueryOptions = {
+        showDeleted: showDeleted as 'true' | 'false' | 'onlyDeleted' || 'false',
+        status: status as 'published' | 'draft' | 'all' || 'all',
+        category: category ? Number(category) : undefined
+      };
+      const posts = await PostModel.findAll(options);
       res.json(posts);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch posts' });
@@ -31,7 +37,11 @@ export class PostController {
   static async getPostById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const post = await PostModel.findById(Number(id));
+      const { showDeleted } = req.query;
+      const options: PostQueryOptions = {
+        showDeleted: showDeleted as 'true' | 'false' | 'onlyDeleted' || 'false'
+      };
+      const post = await PostModel.findById(Number(id), options);
       
       if (!post) {
         res.status(404).json({ error: 'Post not found' });
@@ -49,7 +59,12 @@ export class PostController {
   static async getPostsByCategory(req: Request, res: Response): Promise<void> {
     try {
       const { categoryId } = req.params;
-      const posts = await PostModel.findByCategory(Number(categoryId));
+      const { showDeleted, status } = req.query;
+      const options: PostQueryOptions = {
+        showDeleted: showDeleted as 'true' | 'false' | 'onlyDeleted' || 'false',
+        status: status as 'published' | 'draft' | 'all' || 'all'
+      };
+      const posts = await PostModel.findByCategory(Number(categoryId), options);
       res.json(posts);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch posts by category' });
@@ -80,7 +95,13 @@ export class PostController {
   static async deletePost(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      await PostModel.softDelete(Number(id));
+      const deleted = await PostModel.softDelete(Number(id));
+      
+      if (!deleted) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+      
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: 'Failed to delete post' });

@@ -4,6 +4,8 @@ import categoryRoutes from './routes/categoryRoutes';
 import postRoutes from './routes/postRoutes';
 import commentRoutes from './routes/commentRoutes';
 import path from 'path';
+import { Request, Response, NextFunction } from 'express';
+import CategoryModel from './models/categoryModel';
 
 dotenv.config();
 
@@ -27,9 +29,13 @@ app.get('/', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('Hata Detayları:', err);
+  res.status(500).json({
+    message: 'Sunucuda bir hata oluştu',
+    error: err.message,
+    stack: err.stack
+  });
 });
 
 // 3. 404 handler ekleyin
@@ -39,7 +45,7 @@ app.use((req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Sunucu ${PORT} portunda çalışıyor 🚀`);
 });
 
 export default app; 
