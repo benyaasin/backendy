@@ -1,10 +1,17 @@
 import { User, Prisma } from '@prisma/client';
 import prisma from '../lib/prisma';
-import * as bcrypt from 'bcryptjs';
+import * as argon2 from '@node-rs/argon2';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key';
+
+const ARGON2_CONFIG = {
+  timeCost: 4, // number of iterations
+  memoryCost: 65536, // memory usage in KiB
+  parallelism: 2, // degree of parallelism
+  hashLength: 32 // output hash length
+};
 
 export class AuthService {
   static async register(data: {
@@ -12,7 +19,7 @@ export class AuthService {
     username: string;
     password: string;
   }): Promise<{ user: User; accessToken: string; refreshToken: string }> {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const hashedPassword = await argon2.hash(data.password, ARGON2_CONFIG);
 
     const user = await prisma.user.create({
       data: {
@@ -25,7 +32,7 @@ export class AuthService {
 
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
-    // Save refresh token
+    // Save refresh token with expiry
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
@@ -49,14 +56,25 @@ export class AuthService {
       throw new Error('User not found');
     }
 
-    const validPassword = await bcrypt.compare(password, user.hashed_password);
+    const validPassword = await argon2.verify(user.hashed_password, password);
     if (!validPassword) {
       throw new Error('Invalid password');
     }
 
+    // Revoke all existing refresh tokens for this user
+    await prisma.refreshToken.updateMany({
+      where: {
+        user_id: user.id,
+        revoked_at: null
+      },
+      data: {
+        revoked_at: new Date()
+      }
+    });
+
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
-    // Save refresh token
+    // Save new refresh token
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
@@ -95,14 +113,25 @@ export class AuthService {
         throw new Error('Invalid refresh token');
       }
 
-      // Revoke old refresh token
+      // Revoke current refresh token
       await prisma.refreshToken.update({
         where: { id: refreshTokenRecord.id },
         data: { revoked_at: new Date() }
       });
 
       // Generate new tokens
-      return this.generateTokens(refreshTokenRecord.user);
+      const tokens = await this.generateTokens(refreshTokenRecord.user);
+
+      // Save new refresh token
+      await prisma.refreshToken.create({
+        data: {
+          token: tokens.refreshToken,
+          user_id: refreshTokenRecord.user.id,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        }
+      });
+
+      return tokens;
 
     } catch (error) {
       throw new Error('Invalid refresh token');
@@ -123,8 +152,14 @@ export class AuthService {
   }
 
   private static async generateTokens(user: User): Promise<{ accessToken: string; refreshToken: string }> {
+    const tokenPayload = {
+      userId: user.id,
+      role: user.role,
+      name: user.name
+    };
+
     const accessToken = jwt.sign(
-      { userId: user.id, role: user.role },
+      tokenPayload,
       JWT_SECRET,
       { expiresIn: '15m' }
     );

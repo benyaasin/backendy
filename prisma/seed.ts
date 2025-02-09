@@ -1,14 +1,21 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import * as argon2 from '@node-rs/argon2';
 
 const prisma = new PrismaClient();
+
+const ARGON2_CONFIG = {
+  timeCost: 4,
+  memoryCost: 65536,
+  parallelism: 2,
+  hashLength: 32
+};
 
 async function seed() {
   try {
     // Kullanıcılar
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    const moderatorPassword = await bcrypt.hash('moderator123', 10);
-    const userPassword = await bcrypt.hash('user123', 10);
+    const adminPassword = await argon2.hash('admin123', ARGON2_CONFIG);
+    const moderatorPassword = await argon2.hash('moderator123', ARGON2_CONFIG);
+    const userPassword = await argon2.hash('user123', ARGON2_CONFIG);
 
     const admin = await prisma.user.create({
       data: {
