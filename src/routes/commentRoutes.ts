@@ -1,13 +1,17 @@
 import { Router } from 'express';
 import { CommentController } from '../controllers/CommentController';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 
-router.post('/', CommentController.createComment);
+// Public routes (kimlik doğrulaması gerektirmeyen)
 router.get('/', CommentController.getAllComments);
 router.get('/:id', CommentController.getCommentById);
 router.get('/post/:postId', CommentController.getCommentsByPost);
-router.patch('/:id', CommentController.updateComment);
-router.delete('/:id', CommentController.deleteComment);
+
+// Protected routes (kimlik doğrulaması gerektiren)
+router.post('/', authenticate, CommentController.createComment);
+router.patch('/:id', authenticate, CommentController.updateComment);
+router.delete('/:id', authenticate, CommentController.deleteComment);
 
 export default router; 

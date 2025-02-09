@@ -1,168 +1,138 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-async function main() {
-  // Önce veritabanını temizleyelim
-  await prisma.comment.deleteMany();
-  await prisma.postTag.deleteMany();
-  await prisma.post.deleteMany();
-  await prisma.tag.deleteMany();
-  await prisma.category.deleteMany();
+async function seed() {
+  try {
+    // Kullanıcılar
+    const adminPassword = await bcrypt.hash('admin123', 10);
+    const moderatorPassword = await bcrypt.hash('moderator123', 10);
+    const userPassword = await bcrypt.hash('user123', 10);
 
-  // Kategoriler
-  const techCategory = await prisma.category.create({
-    data: {
-      name: 'Teknoloji'
-    }
-  });
+    const admin = await prisma.user.create({
+      data: {
+        name: 'Admin User',
+        username: 'admin',
+        hashed_password: adminPassword,
+        role: 'admin',
+      },
+    });
 
-  const scienceCategory = await prisma.category.create({
-    data: {
-      name: 'Bilim'
-    }
-  });
+    const moderator = await prisma.user.create({
+      data: {
+        name: 'Moderator User',
+        username: 'moderator',
+        hashed_password: moderatorPassword,
+        role: 'moderator',
+      },
+    });
 
-  const healthCategory = await prisma.category.create({
-    data: {
-      name: 'Sağlık'
-    }
-  });
+    const user = await prisma.user.create({
+      data: {
+        name: 'Normal User',
+        username: 'user',
+        hashed_password: userPassword,
+        role: 'member',
+      },
+    });
 
-  // Etiketler
-  const tags = await Promise.all([
-    prisma.tag.upsert({
-      where: { name: 'Yapay Zeka' },
-      update: {},
-      create: { name: 'Yapay Zeka' }
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Web Geliştirme' },
-      update: {},
-      create: { name: 'Web Geliştirme' }
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Mobil' },
-      update: {},
-      create: { name: 'Mobil' }
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Uzay' },
-      update: {},
-      create: { name: 'Uzay' }
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Sağlık' },
-      update: {},
-      create: { name: 'Sağlık' }
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Yenilik' },
-      update: {},
-      create: { name: 'Yenilik' }
-    })
-  ]);
+    // Kategoriler
+    const technology = await prisma.category.create({
+      data: {
+        name: 'Teknoloji',
+      },
+    });
 
-  // Gönderiler
-  const post1 = await prisma.post.create({
-    data: {
-      title: 'TypeScript ile Web Geliştirme',
-      content: 'TypeScript, JavaScript\'in üzerine inşa edilmiş güçlü bir programlama dilidir...',
-      category_id: techCategory.id,
-      published_at: new Date(),
-      post_tags: {
-        create: [
-          { tag_id: tags[1].id }, // Web Geliştirme
-        ]
-      }
-    }
-  });
+    const science = await prisma.category.create({
+      data: {
+        name: 'Bilim',
+      },
+    });
 
-  const post2 = await prisma.post.create({
-    data: {
-      title: 'Yapay Zeka ve Mobil Uygulamalar',
-      content: 'Yapay zeka teknolojileri mobil uygulama geliştirmede yeni ufuklar açıyor...',
-      category_id: techCategory.id,
-      published_at: new Date(),
-      post_tags: {
-        create: [
-          { tag_id: tags[0].id }, // Yapay Zeka
-          { tag_id: tags[2].id }  // Mobil
-        ]
-      }
-    }
-  });
+    const art = await prisma.category.create({
+      data: {
+        name: 'Sanat',
+      },
+    });
 
-  const post3 = await prisma.post.create({
-    data: {
-      title: 'Mars\'ta Yaşam İzleri',
-      content: 'NASA\'nın son keşifleri Mars\'ta yaşam olasılığını güçlendiriyor...',
-      category_id: scienceCategory.id,
-      published_at: new Date(),
-      post_tags: {
-        create: [
-          { tag_id: tags[3].id }, // Uzay
-        ]
-      }
-    }
-  });
+    // Gönderiler
+    const post1 = await prisma.post.create({
+      data: {
+        title: 'Yapay Zeka ve Geleceğimiz',
+        content: `Yapay zeka teknolojisi her geçen gün hayatımızın daha fazla alanına giriyor. 
+        Özellikle makine öğrenimi ve derin öğrenme alanındaki gelişmeler, birçok sektörde devrim yaratıyor.
+        
+        Bu yazıda, yapay zekanın geleceğimizi nasıl şekillendireceğini ve bunun için nasıl hazırlanmamız gerektiğini ele alacağız.`,
+        user_id: admin.id,
+        category_id: technology.id,
+        published_at: new Date(),
+        image_url: 'https://source.unsplash.com/800x400/?artificial-intelligence',
+      },
+    });
 
-  const post4 = await prisma.post.create({
-    data: {
-      title: 'Sağlıklı Yaşam İçin 10 İpucu',
-      content: 'Sağlıklı bir yaşam için dikkat etmeniz gereken 10 önemli ipucu...',
-      category_id: healthCategory.id,
-      published_at: new Date(),
-      post_tags: {
-        create: [
-          { tag_id: tags[4].id }, // Sağlık
-          { tag_id: tags[5].id }  // Yenilik
-        ]
-      }
-    }
-  });
+    const post2 = await prisma.post.create({
+      data: {
+        title: "Mars'ta Yaşam İzleri",
+        content: `NASA'nın Perseverance aracı, Mars'ta organik moleküller buldu! 
+        Bu keşif, Kızıl Gezegen'de bir zamanlar yaşam olabileceğine dair en güçlü kanıtlardan biri.
+        
+        Peki bu buluş ne anlama geliyor ve gelecekteki Mars araştırmaları için ne gibi sonuçlar doğuracak?`,
+        user_id: moderator.id,
+        category_id: science.id,
+        published_at: new Date(),
+        image_url: 'https://source.unsplash.com/800x400/?mars',
+      },
+    });
 
-  // Yorumlar
-  await prisma.comment.create({
-    data: {
-      post_id: post1.id,
-      content: 'Harika bir yazı olmuş!',
-      commenter_name: 'Ahmet'
-    }
-  });
+    const post3 = await prisma.post.create({
+      data: {
+        title: 'Modern Sanatın Yükselişi',
+        content: `Dijital çağda sanat yeni bir boyut kazanıyor. NFT'ler, dijital enstalasyonlar ve sanal gerçeklik,
+        sanat dünyasını baştan aşağı değiştiriyor.
+        
+        Bu yazıda modern sanatın geldiği noktayı ve geleceğini tartışacağız.`,
+        user_id: user.id,
+        category_id: art.id,
+        published_at: new Date(),
+        image_url: 'https://source.unsplash.com/800x400/?modern-art',
+      },
+    });
 
-  await prisma.comment.create({
-    data: {
-      post_id: post2.id,
-      content: 'Çok bilgilendirici, teşekkürler.',
-      commenter_name: 'Mehmet'
-    }
-  });
+    // Yorumlar
+    await prisma.comment.create({
+      data: {
+        content: 'Harika bir yazı olmuş! Yapay zeka konusunda daha fazla içerik bekliyoruz.',
+        user_id: user.id,
+        post_id: post1.id,
+        commenter_name: user.name,
+      },
+    });
 
-  await prisma.comment.create({
-    data: {
-      post_id: post3.id,
-      content: 'Mars hakkında daha fazla bilgi edinmek isterim.',
-      commenter_name: 'Elif'
-    }
-  });
+    await prisma.comment.create({
+      data: {
+        content: 'Mars keşifleri gerçekten heyecan verici. Bu konuda daha detaylı bilgi paylaşabilir misiniz?',
+        user_id: moderator.id,
+        post_id: post2.id,
+        commenter_name: moderator.name,
+      },
+    });
 
-  await prisma.comment.create({
-    data: {
-      post_id: post4.id,
-      content: 'Sağlık ipuçları için teşekkürler!',
-      commenter_name: 'Zeynep'
-    }
-  });
+    await prisma.comment.create({
+      data: {
+        content: "NFT'ler konusunda çok güzel bir bakış açısı sunmuşsunuz.",
+        user_id: admin.id,
+        post_id: post3.id,
+        commenter_name: admin.name,
+      },
+    });
 
-  console.log('Örnek veriler başarıyla oluşturuldu! 🌱');
+    console.log('Seed data başarıyla oluşturuldu! 🌱');
+  } catch (error) {
+    console.error('Seed data oluşturulurken hata:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-main()
-  .catch((e) => {
-    console.error('Hata:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  }); 
+seed(); 
