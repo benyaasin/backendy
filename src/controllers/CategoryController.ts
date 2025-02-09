@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import { CategoryModel, Category, CategoryQueryOptions } from '../models/Category';
-import { Category } from '../types/Category';
+import { CategoryService } from '../services/CategoryService';
+
+const categoryService = new CategoryService();
 
 export class CategoryController {
-  static async createCategory(req: Request, res: Response): Promise<void> {
+  async create(req: Request, res: Response): Promise<void> {
     try {
       const { name } = req.body;
-      const newCategory: Category = { name };
-      const category = await CategoryModel.create(newCategory);
+      const category = await categoryService.create({ name });
       res.status(201).json(category);
     } catch (error) {
       console.error('Kategori oluşturma hatası:', error);
@@ -18,69 +18,68 @@ export class CategoryController {
     }
   }
 
-  static async getAllCategories(req: Request, res: Response): Promise<void> {
+  async findAll(req: Request, res: Response): Promise<void> {
     try {
       const { showDeleted } = req.query;
-      const options: CategoryQueryOptions = {
-        showDeleted: showDeleted as 'true' | 'false' | 'onlyDeleted' || 'false'
-      };
-      const categories = await CategoryModel.findAll(options);
+      const categories = await categoryService.findAll(
+        showDeleted as 'true' | 'false' | 'onlyDeleted'
+      );
       res.json(categories);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch categories' });
+      res.status(500).json({ error: 'Kategoriler getirilemedi' });
     }
   }
 
-  static async getCategoryById(req: Request, res: Response): Promise<void> {
+  async findById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const { showDeleted } = req.query;
-      const options: CategoryQueryOptions = {
-        showDeleted: showDeleted as 'true' | 'false' | 'onlyDeleted' || 'false'
-      };
-      const category = await CategoryModel.findById(Number(id), options);
+      const category = await categoryService.findById(
+        Number(id),
+        showDeleted as 'true' | 'false' | 'onlyDeleted'
+      );
       
       if (!category) {
-        res.status(404).json({ error: 'Category not found' });
+        res.status(404).json({ error: 'Kategori bulunamadı' });
         return;
       }
       
       res.json(category);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch category' });
+      res.status(500).json({ error: 'Kategori getirilemedi' });
     }
   }
 
-  static async updateCategory(req: Request, res: Response): Promise<void> {
+  async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const { name } = req.body;
-      const updatedCategory = await CategoryModel.update(Number(id), { name });
+      const category = await categoryService.update(Number(id), { name });
       
-      if (!updatedCategory) {
-        res.status(404).json({ error: 'Category not found' });
+      if (!category) {
+        res.status(404).json({ error: 'Kategori bulunamadı' });
         return;
       }
       
-      res.json(updatedCategory);
+      res.json(category);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update category' });
+      res.status(500).json({ error: 'Kategori güncellenemedi' });
     }
   }
 
-  static async deleteCategory(req: Request, res: Response): Promise<void> {
+  async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const deleted = await CategoryModel.softDelete(Number(id));
+      const deleted = await categoryService.softDelete(Number(id));
       
       if (!deleted) {
-        res.status(404).json({ error: 'Category not found' });
+        res.status(404).json({ error: 'Kategori bulunamadı' });
         return;
       }
       
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: 'Failed to delete category' });
+      res.status(500).json({ error: 'Kategori silinemedi' });
     }
   }
 } 

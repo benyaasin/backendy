@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import categoryRoutes from './routes/categoryRoutes';
 import postRoutes from './routes/postRoutes';
 import commentRoutes from './routes/commentRoutes';
+import tagRoutes from './routes/tagRoutes';
 import path from 'path';
 import { Request, Response, NextFunction } from 'express';
 import CategoryModel from './models/categoryModel';
@@ -19,28 +20,31 @@ app.use(express.json());
 app.use('/categories', categoryRoutes);
 app.use('/posts', postRoutes);
 app.use('/comments', commentRoutes);
+app.use('/tags', tagRoutes);
 
 // 1. Kök dizin için route ekleyin
-app.get('/', (req, res) => {
-  res.send('Server is running!');
+app.get('/', (req: Request, res: Response) => {
+  res.json({ status: 'OK', message: 'Blog API is running' });
 });
 
 // 2. Static dosyaları servis etme (React/Vue/Angular kullanıyorsanız)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Error handling middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Hata Detayları:', err);
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('Hata:', err);
   res.status(500).json({
     message: 'Sunucuda bir hata oluştu',
-    error: err.message,
-    stack: err.stack
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
-// 3. 404 handler ekleyin
-app.use((req, res) => {
-  res.status(404).send('Page not found');
+// 404 handler
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    message: 'Endpoint bulunamadı',
+    path: req.path
+  });
 });
 
 // Start server

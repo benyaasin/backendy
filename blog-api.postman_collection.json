@@ -1,0 +1,217 @@
+{
+  "info": {
+    "name": "Blog API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/categories",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "name": "Teknoloji"
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "url": "{{base_url}}/categories"
+              },
+              "status": "Created",
+              "code": 201,
+              "body": {
+                "id": 1,
+                "name": "Teknoloji",
+                "created_at": "2024-02-24T12:00:00.000Z",
+                "deleted_at": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/categories",
+            "query": [
+              {
+                "key": "showDeleted",
+                "value": "false",
+                "description": "true | false | onlyDeleted"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/posts",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "category_id": 1,
+                "title": "TypeScript ile Web Geliştirme",
+                "content": "TypeScript, JavaScript'in üzerine inşa edilmiş güçlü bir programlama dilidir...",
+                "published_at": "2024-02-24T12:00:00.000Z"
+              }
+            }
+          }
+        },
+        {
+          "name": "List Posts",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/posts",
+            "query": [
+              {
+                "key": "showDeleted",
+                "value": "false",
+                "description": "true | false | onlyDeleted"
+              },
+              {
+                "key": "status",
+                "value": "published",
+                "description": "published | draft | all"
+              },
+              {
+                "key": "category",
+                "value": "1",
+                "description": "Category ID"
+              },
+              {
+                "key": "tags",
+                "value": "1,2",
+                "description": "Comma separated tag IDs"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Post by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/posts/:id"
+          }
+        },
+        {
+          "name": "Add Tag to Post",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/posts/:id/tags",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "tagId": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "Remove Tag from Post",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/posts/:id/tags/:tagId"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "Create Tag",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/tags",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "name": "Yapay Zeka"
+              }
+            }
+          }
+        },
+        {
+          "name": "List Tags",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/tags"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/comments",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "post_id": 1,
+                "content": "Harika bir yazı olmuş!",
+                "commenter_name": "Ahmet"
+              }
+            }
+          }
+        },
+        {
+          "name": "List Comments",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/comments",
+            "query": [
+              {
+                "key": "post",
+                "value": "1",
+                "description": "Post ID"
+              },
+              {
+                "key": "commenter",
+                "value": "Ahmet",
+                "description": "Commenter name"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+} 
