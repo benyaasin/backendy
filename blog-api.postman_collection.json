@@ -12,13 +12,13 @@
   ],
   "item": [
     {
-      "name": "Categories",
+      "name": "Auth",
       "item": [
         {
-          "name": "Create Category",
+          "name": "Register",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/categories",
+            "url": "{{base_url}}/auth/register",
             "header": [
               {
                 "key": "Content-Type",
@@ -27,7 +27,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Teknoloji\"\n}"
+              "raw": "{\n  \"name\": \"Test User\",\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
             }
           },
           "response": [
@@ -35,45 +35,19 @@
               "name": "Success",
               "originalRequest": {
                 "method": "POST",
-                "url": "{{base_url}}/categories"
+                "url": "{{base_url}}/auth/register"
               },
               "status": "Created",
               "code": 201,
-              "body": "{\n  \"id\": 1,\n  \"name\": \"Teknoloji\",\n  \"created_at\": \"2024-02-24T12:00:00.000Z\",\n  \"deleted_at\": null\n}"
+              "body": "{\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Test User\",\n    \"username\": \"testuser\",\n    \"role\": \"member\",\n    \"created_at\": \"2024-02-24T12:00:00.000Z\"\n  },\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
             }
           ]
         },
         {
-          "name": "List Categories",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/categories",
-            "query": [
-              {
-                "key": "showDeleted",
-                "value": "false",
-                "description": "true | false | onlyDeleted"
-              }
-            ]
-          }
-        },
-        {
-          "name": "Delete Category",
-          "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/categories/:id"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Posts",
-      "item": [
-        {
-          "name": "Create Post",
+          "name": "Login",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/posts",
+            "url": "{{base_url}}/auth/login",
             "header": [
               {
                 "key": "Content-Type",
@@ -82,10 +56,70 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"category_id\": 1,\n  \"title\": \"TypeScript ile Web Geliştirme\",\n  \"content\": \"TypeScript, JavaScript'in üzerine inşa edilmiş güçlü bir programlama dilidir...\",\n  \"published_at\": \"2024-02-24T12:00:00.000Z\"\n}"
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "url": "{{base_url}}/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Test User\",\n    \"username\": \"testuser\",\n    \"role\": \"member\",\n    \"created_at\": \"2024-02-24T12:00:00.000Z\"\n  },\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/refresh-token",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
             }
           }
         },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/logout",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
         {
           "name": "List Posts",
           "request": {
@@ -106,68 +140,94 @@
                 "key": "category",
                 "value": "1",
                 "description": "Category ID"
-              },
-              {
-                "key": "tags",
-                "value": "1,2",
-                "description": "Comma separated tag IDs"
               }
             ]
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{base_url}}/posts"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"Yapay Zeka ve Geleceğimiz\",\n    \"content\": \"Yapay zeka teknolojisi her geçen gün...\",\n    \"published_at\": \"2024-02-24T12:00:00.000Z\",\n    \"category\": {\n      \"id\": 1,\n      \"name\": \"Teknoloji\"\n    },\n    \"user\": {\n      \"id\": 1,\n      \"name\": \"Admin User\"\n    }\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Post",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/posts/:id"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{base_url}}/posts/1"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"title\": \"Yapay Zeka ve Geleceğimiz\",\n  \"content\": \"Yapay zeka teknolojisi her geçen gün...\",\n  \"published_at\": \"2024-02-24T12:00:00.000Z\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Teknoloji\"\n  },\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Admin User\"\n  },\n  \"comments\": [\n    {\n      \"id\": 1,\n      \"content\": \"Harika bir yazı!\",\n      \"user\": {\n        \"id\": 2,\n        \"name\": \"Test User\"\n      },\n      \"created_at\": \"2024-02-24T12:30:00.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/posts",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Yeni Blog Yazısı\",\n  \"content\": \"Blog yazısı içeriği...\",\n  \"category_id\": 1,\n  \"published_at\": \"2024-02-24T12:00:00.000Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/posts/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Güncellenmiş Başlık\",\n  \"content\": \"Güncellenmiş içerik...\"\n}"
+            }
           }
         },
         {
           "name": "Delete Post",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/posts/:id"
-          }
-        },
-        {
-          "name": "Add Tag to Post",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/posts/:id/tags",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tagId\": 1\n}"
-            }
-          }
-        },
-        {
-          "name": "Remove Tag from Post",
-          "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/posts/:id/tags/:tagId"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Tags",
-      "item": [
-        {
-          "name": "Create Tag",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/tags",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Yapay Zeka\"\n}"
-            }
-          }
-        },
-        {
-          "name": "List Tags",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/tags"
-          }
-        },
-        {
-          "name": "Delete Tag",
-          "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/tags/:id"
+            "url": "{{base_url}}/posts/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
           }
         }
       ]
@@ -175,17 +235,6 @@
     {
       "name": "Comments",
       "item": [
-        {
-          "name": "Create Comment",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/comments",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"post_id\": 1,\n  \"content\": \"Harika bir yazı olmuş!\",\n  \"commenter_name\": \"Ahmet\"\n}"
-            }
-          }
-        },
         {
           "name": "List Comments",
           "request": {
@@ -199,20 +248,266 @@
               },
               {
                 "key": "commenter",
-                "value": "Ahmet",
-                "description": "Commenter name"
+                "value": "testuser",
+                "description": "Commenter username"
               }
             ]
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{base_url}}/comments"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"content\": \"Harika bir yazı!\",\n    \"user\": {\n      \"id\": 2,\n      \"name\": \"Test User\"\n    },\n    \"post\": {\n      \"id\": 1,\n      \"title\": \"Yapay Zeka ve Geleceğimiz\"\n    },\n    \"created_at\": \"2024-02-24T12:30:00.000Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Post Comments",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/comments/post/:postId"
+          }
+        },
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/comments",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"post_id\": 1,\n  \"content\": \"Harika bir yazı!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/comments/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Güncellenmiş yorum\"\n}"
+            }
           }
         },
         {
           "name": "Delete Comment",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/comments/:id"
+            "url": "{{base_url}}/comments/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/categories",
+            "query": [
+              {
+                "key": "showDeleted",
+                "value": "false",
+                "description": "true | false | onlyDeleted"
+              }
+            ]
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{base_url}}/categories"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Teknoloji\",\n    \"created_at\": \"2024-02-24T12:00:00.000Z\",\n    \"posts_count\": 5\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Bilim\",\n    \"created_at\": \"2024-02-24T12:00:00.000Z\",\n    \"posts_count\": 3\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Category",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/categories/:id"
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/categories",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Yeni Kategori\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/categories/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Güncellenmiş Kategori\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/categories/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "List Tags",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/tags",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{base_url}}/tags"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"JavaScript\",\n    \"created_at\": \"2024-02-24T12:00:00.000Z\",\n    \"posts_count\": 3\n  },\n  {\n    \"id\": 2,\n    \"name\": \"React\",\n    \"created_at\": \"2024-02-24T12:00:00.000Z\",\n    \"posts_count\": 2\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Create Tag",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/tags",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Yeni Tag\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Tag",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/tags/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Güncellenmiş Tag\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Tag",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/tags/:id",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
           }
         }
       ]
     }
   ]
+} 
 } 
