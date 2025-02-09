@@ -27,9 +27,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": {
-                "name": "Teknoloji"
-              }
+              "raw": "{\n  \"name\": \"Teknoloji\"\n}"
             }
           },
           "response": [
@@ -41,12 +39,7 @@
               },
               "status": "Created",
               "code": 201,
-              "body": {
-                "id": 1,
-                "name": "Teknoloji",
-                "created_at": "2024-02-24T12:00:00.000Z",
-                "deleted_at": null
-              }
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Teknoloji\",\n  \"created_at\": \"2024-02-24T12:00:00.000Z\",\n  \"deleted_at\": null\n}"
             }
           ]
         },
@@ -62,6 +55,13 @@
                 "description": "true | false | onlyDeleted"
               }
             ]
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/categories/:id"
           }
         }
       ]
@@ -82,12 +82,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": {
-                "category_id": 1,
-                "title": "TypeScript ile Web Geliştirme",
-                "content": "TypeScript, JavaScript'in üzerine inşa edilmiş güçlü bir programlama dilidir...",
-                "published_at": "2024-02-24T12:00:00.000Z"
-              }
+              "raw": "{\n  \"category_id\": 1,\n  \"title\": \"TypeScript ile Web Geliştirme\",\n  \"content\": \"TypeScript, JavaScript'in üzerine inşa edilmiş güçlü bir programlama dilidir...\",\n  \"published_at\": \"2024-02-24T12:00:00.000Z\"\n}"
             }
           }
         },
@@ -121,9 +116,9 @@
           }
         },
         {
-          "name": "Get Post by ID",
+          "name": "Delete Post",
           "request": {
-            "method": "GET",
+            "method": "DELETE",
             "url": "{{base_url}}/posts/:id"
           }
         },
@@ -134,9 +129,7 @@
             "url": "{{base_url}}/posts/:id/tags",
             "body": {
               "mode": "raw",
-              "raw": {
-                "tagId": 1
-              }
+              "raw": "{\n  \"tagId\": 1\n}"
             }
           }
         },
@@ -159,9 +152,7 @@
             "url": "{{base_url}}/tags",
             "body": {
               "mode": "raw",
-              "raw": {
-                "name": "Yapay Zeka"
-              }
+              "raw": "{\n  \"name\": \"Yapay Zeka\"\n}"
             }
           }
         },
@@ -170,6 +161,13 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/tags"
+          }
+        },
+        {
+          "name": "Delete Tag",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/tags/:id"
           }
         }
       ]
@@ -184,11 +182,7 @@
             "url": "{{base_url}}/comments",
             "body": {
               "mode": "raw",
-              "raw": {
-                "post_id": 1,
-                "content": "Harika bir yazı olmuş!",
-                "commenter_name": "Ahmet"
-              }
+              "raw": "{\n  \"post_id\": 1,\n  \"content\": \"Harika bir yazı olmuş!\",\n  \"commenter_name\": \"Ahmet\"\n}"
             }
           }
         },
@@ -209,6 +203,13 @@
                 "description": "Commenter name"
               }
             ]
+          }
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/comments/:id"
           }
         }
       ]
